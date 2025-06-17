@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neighbourhood Navigator - English Learning</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffd6e7, #c2f0ff, #fff9c8);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 20px rgba(255, 158, 193, 0.3);
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            color: #ff6b9d;
+            text-shadow: 3px 3px 0 #ffd1e0;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #5c9edc;
+            font-weight: 600;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .controls-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(194, 240, 255, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(158, 212, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-top {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(158, 212, 255, 0.4);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .question-display {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ff6b9d;
+            width: 100%;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #a8d98f;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-display {
+            background: #e5ffd6;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #5c9edc;
+            width: 100%;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #ffb240;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .buttons-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 18px 35px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn i {
+            font-size: 1.5rem;
+        }
+
+        .question-btn {
+            background: linear-gradient(45deg, #6bc2ff, #3a9bff);
+            color: white;
+        }
+
+        .answer-btn {
+            background: linear-gradient(45deg, #ffb36b, #ff8e3a);
+            color: white;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #6bff8e, #3a9b50);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .map-section {
+            flex: 2;
+            min-width: 600px;
+            background: rgba(255, 246, 200, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(255, 214, 138, 0.4);
+            position: relative;
+        }
+
+        .map-section h2 {
+            text-align: center;
+            color: #ffa84d;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .map-container {
+            background: #e5ffd6;
+            height: 500px;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 3px dashed #a8d98f;
+        }
+
+        #pathCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .road {
+            position: absolute;
+            background: #a9a9a9;
+        }
+
+        .vertical-road {
+            width: 10px;
+            height: 90%;
+            left: 50%;
+            top: 5%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .horizontal-road {
+            width: 90%;
+            height: 8px;
+            left: 5%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .top-road {
+            top: 33%;
+        }
+
+        .bottom-road {
+            top: 66%;
+        }
+
+        .intersection {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ffd700;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.4);
+        }
+
+        .top-intersection {
+            top: 33%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .bottom-intersection {
+            top: 66%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .buildings-container {
+            display: flex;
+            height: 100%;
+            position: relative;
+            z-index: 15;
+        }
+
+        .left-area, .right-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .building-row {
+            display: flex;
+            justify-content: space-around;
+            height: 30%;
+            padding: 10px 0;
+        }
+
+        .building {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 22%;
+            z-index: 20;
+            position: relative;
+        }
+
+        .building-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .building-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .building-label {
+            background: white;
+            min-width: 100px;
+            min-height: 40px;
+            padding: 5px 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #6b6b6b;
+            border: 2px dashed #c5c5c5;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .start-container {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 30;
+        }
+
+        .starting-point {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            cursor: grab;
+        }
+
+        .person-icon {
+            font-size: 2.5rem;
+            color: #3a9bff;
+            transition: transform 0.2s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        .person-icon.dragging {
+            animation: none;
+            color: #ff3a7a;
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .start-label {
+            background: #ff6b9d;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            z-index: 35;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .instruction {
+            text-align: center;
+            margin-top: 15px;
+            color: #6b6b6b;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .drag-hint {
+            text-align: center;
+            margin-top: 15px;
+            color: #ff6b9d;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* 新增的重置按钮容器样式 */
+        .map-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .path-reset-btn {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(45deg, #ff8e6b, #ff3a7a);
+            color: white;
+        }
+        
+        .path-reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .path-reset-btn i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .map-section, .controls-section {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .building-label {
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+            
+            .question-display {
+                font-size: 1.3rem;
+            }
+            
+            .answer-display {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+            
+            .map-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .path-reset-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Building icon colors */
+        .icon-school { color: #ff6b9d; }
+        .icon-toy { color: #6bc2ff; }
+        .icon-bank { color: #ffd16b; }
+        .icon-restaurant { color: #ff9ec7; }
+        .icon-post { color: #a78cff; }
+        .icon-grocery { color: #6bffb8; }
+        .icon-cinema { color: #ff8e6b; }
+        .icon-supermarket { color: #6b8cff; }
+        .icon-home { color: #ff6b6b; }
+        .icon-park { color: #6bff8e; }
+        .icon-library { color: #b78cff; }
+        .icon-hospital { color: #ff8e8e; }
+        .icon-bookshop { color: #ffb36b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-map-marked-alt"></i> Neighbourhood Navigator</h1>
+            <p class="subtitle">Practice English Directions with Interactive Map</p>
+        </header>
+
+        <div class="content">
+            <div class="controls-section">
+                <div class="question-top">
+                    <div class="question-display" id="questionDisplay">
+                        Click "Ask a Question" to start practicing!
+                    </div>
+                    <div class="answer-display" id="answerDisplay">
+                        Answer will appear here after you ask a question
+                    </div>
+                    
+                    <div class="buttons-column">
+                        <button class="btn question-btn" id="questionBtn">
+                            <i class="fas fa-question-circle"></i> Ask a Question
+                        </button>
+                        <button class="btn answer-btn" id="answerBtn">
+                            <i class="fas fa-lightbulb"></i> Show the Answer
+                        </button>
+                    </div>
+                    
+                    <button class="btn refresh-btn" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh Map
+                    </button>
+                </div>
+                
+                <div class="instruction">
+                    <p>How to use:</p>
+                    <p>1. Click "Ask a Question" to get a navigation challenge</p>
+                    <p>2. Drag the blue person to create your path</p>
+                    <p>3. Click "Show the Answer" to get a model answer.</p>
+                    <p>4. Click "Reset Path" to restart your navigation</p>
+                    <p>5. Click "Refresh Map" to start over completely</p>
+                </div>
+            </div>
+
+            <div class="map-section">
+                <h2><i class="fas fa-map"></i> Interactive Neighbourhood Map</h2>
+                <div class="map-container">
+                    <canvas id="pathCanvas" width="800" height="500"></canvas>
+                    
+                    <!-- Roads -->
+                    <div class="road vertical-road"></div>
+                    <div class="road horizontal-road top-road"></div>
+                    <div class="road horizontal-road bottom-road"></div>
+                    
+                    <!-- Intersections -->
+                    <div class="intersection top-intersection"></div>
+                    <div class="intersection bottom-intersection"></div>
+                    
+                    <!-- Buildings -->
+                    <div class="buildings-container">
+                        <div class="left-area">
+                            <div class="building-row">
+                                <div class="building" data-coordinate="a">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="b">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="building-row">
+                                <div class="building" data-coordinate="c">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="d">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="e">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="building-row">
+                                <div class="building" data-coordinate="f">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="g">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="right-area">
+                            <div class="building-row">
+                                <div class="building" data-coordinate="h">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="i">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="building-row">
+                                <div class="building" data-coordinate="j">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="k">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="building-row">
+                                <div class="building" data-coordinate="l">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                                <div class="building" data-coordinate="m">
+                                    <div class="building-icon"><i class="fas fa-icon-placeholder"></i></div>
+                                    <div class="building-label"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Start Container -->
+                    <div class="start-container">
+                        <div class="start-label">Start</div>
+                    </div>
+                    
+                    <!-- Starting Point -->
+                    <div class="starting-point" id="startingPoint">
+                        <div class="person-icon"><i class="fas fa-male"></i></div>
+                    </div>
+                </div>
+                
+                <div class="map-controls">
+                    <div class="drag-hint">
+                        <i class="fas fa-arrows-alt"></i> Drag the blue person to create your navigation path
+                    </div>
+                    <button class="path-reset-btn" id="pathResetBtn">
+                        <i class="fas fa-undo"></i> Reset Path
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const questionBtn = document.getElementById('questionBtn');
+            const answerBtn = document.getElementById('answerBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const pathResetBtn = document.getElementById('pathResetBtn');
+            const questionDisplay = document.getElementById('questionDisplay');
+            const answerDisplay = document.getElementById('answerDisplay');
+            const buildingIcons = document.querySelectorAll('.building-icon');
+            const buildingLabels = document.querySelectorAll('.building-label');
+            const startingPoint = document.getElementById('startingPoint');
+            const pathCanvas = document.getElementById('pathCanvas');
+            const ctx = pathCanvas.getContext('2d');
+            
+            // Original position of the starting point
+            const originalPosition = {
+                bottom: "35px",
+                left: "50%",
+                transform: "translateX(-50%)"
+            };
+            
+            // Building icons mapping
+            const iconMap = {
+                'school': 'fa-school icon-school',
+                'toy shop': 'fa-gamepad icon-toy',
+                'bank': 'fa-university icon-bank',
+                'restaurant': 'fa-utensils icon-restaurant',
+                'post office': 'fa-envelope icon-post',
+                'grocery': 'fa-shopping-basket icon-grocery',
+                'cinema': 'fa-film icon-cinema',
+                'supermarket': 'fa-shopping-cart icon-supermarket',
+                'my home': 'fa-home icon-home',
+                'park': 'fa-tree icon-park',
+                'library': 'fa-book icon-library',
+                'hospital': 'fa-hospital icon-hospital',
+                'bookshop': 'fa-book-open icon-bookshop'
+            };
+            
+            // Coordinate to building mapping
+            const coordinateMap = {
+                'a': null,
+                'b': null,
+                'c': null,
+                'd': null,
+                'e': null,
+                'f': null,
+                'g': null,
+                'h': null,
+                'i': null,
+                'j': null,
+                'k': null,
+                'l': null,
+                'm': null
+            };
+            
+            // Question templates with answers
+            const questionTemplates = [
+                {
+                    question: "Excuse me. How can I get to the {a}?",
+                    answer: "Go Straight and turn left at the second crossroads. It’s next to the {b}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {b}?",
+                    answer: "Go Straight and turn left at the second crossroads. It’s next to the {a}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {d}?",
+                    answer: "Go Straight and turn left at the first crossroads. It’s between the {c} and {e}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {f}?",
+                    answer: "Go Straight and turn left at the first crossroads. It’s next to the {g}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {h}?",
+                    answer: "Go Straight and turn right at the second crossroads. It’s next to the {i}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {i}?",
+                    answer: "Go Straight and turn right at the second crossroads. It’s next to the {h}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {j}?",
+                    answer: "Go Straight and turn right at the first crossroads. It’s next to the {k}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {k}?",
+                    answer: "Go Straight and turn right at the first crossroads. It’s next to the {j}."
+                },
+                {
+                    question: "Excuse me. How can I get to the {l}?",
+                    answer: "Go Straight and turn right at the first crossroads. It’s on your left."
+                },
+                {
+                    question: "Excuse me. How can I get to the {m}?",
+                    answer: "Go Straight and turn right at the first crossroads. It’s next to the {l}."
+                }
+            ];
+            
+            // Current question and answer
+            let currentQuestion = null;
+            let currentAnswer = null;
+            
+            // Drag state variables
+            let isDragging = false;
+            let startX, startY;
+            let pathPoints = [];
+            
+            // Function to shuffle array
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // Function to distribute words to buildings
+            function distributeWords() {
+                // Define all words
+                const words = [
+                    "school", "toy shop", "bank", "restaurant", "post office",
+                    "grocery", "cinema", "supermarket", "my home", "park",
+                    "library", "hospital", "bookshop"
+                ];
+                
+                // Shuffle words
+                const shuffledWords = shuffleArray([...words]);
+                
+                // Reset coordinate map
+                Object.keys(coordinateMap).forEach(key => coordinateMap[key] = null);
+                
+                // Assign words to building labels and set icons
+                buildingLabels.forEach((label, index) => {
+                    if (index < shuffledWords.length) {
+                        const word = shuffledWords[index];
+                        const coordinate = label.parentElement.getAttribute('data-coordinate');
+                        
+                        label.textContent = word;
+                        coordinateMap[coordinate] = word;
+                        
+                        // Set icon
+                        const iconClass = iconMap[word];
+                        if (iconClass) {
+                            buildingIcons[index].className = `building-icon fas ${iconClass}`;
+                        }
+                    }
+                });
+            }
+            
+            // Function to replace placeholders in template
+            function replacePlaceholders(template) {
+                return template.replace(/{([a-z])}/g, (match, p1) => {
+                    return coordinateMap[p1] || match;
+                });
+            }
+            
+            // Function to generate a random question
+            function generateQuestion() {
+                if (Object.values(coordinateMap).every(val => val === null)) {
+                    questionDisplay.textContent = "Please refresh the map first!";
+                    return;
+                }
+                
+                // Filter out templates that reference "my home"
+                const validTemplates = questionTemplates.filter(template => {
+                    const placeholders = template.question.match(/{([a-z])}/g) || [];
+                    return !placeholders.some(ph => coordinateMap[ph[1]] === "my home");
+                });
+                
+                if (validTemplates.length === 0) {
+                    questionDisplay.textContent = "No valid questions available. Please refresh the map.";
+                    return;
+                }
+                
+                // Select a random template
+                const randomIndex = Math.floor(Math.random() * validTemplates.length);
+                const template = validTemplates[randomIndex];
+                
+                // Replace placeholders with actual words
+                currentQuestion = replacePlaceholders(template.question);
+                currentAnswer = replacePlaceholders(template.answer);
+                
+                // Display the question
+                questionDisplay.textContent = currentQuestion;
+                answerDisplay.style.display = 'none';
+                answerDisplay.textContent = "";
+            }
+            
+            // Function to show answer
+            function showAnswer() {
+                if (!currentQuestion) {
+                    answerDisplay.textContent = "Please ask a question first!";
+                    answerDisplay.style.display = 'block';
+                    return;
+                }
+                
+                answerDisplay.textContent = currentAnswer;
+                answerDisplay.style.display = 'block';
+            }
+            
+            // Function to reset everything
+            function resetAll() {
+                // Clear canvas
+                ctx.clearRect(0, 0, pathCanvas.width, pathCanvas.height);
+                
+                // Reset person position to original location
+                startingPoint.style.bottom = originalPosition.bottom;
+                startingPoint.style.left = originalPosition.left;
+                startingPoint.style.transform = originalPosition.transform;
+                startingPoint.style.top = "auto";
+                startingPoint.querySelector('.person-icon').classList.remove('dragging');
+                
+                // Reset path points
+                pathPoints = [];
+                
+                // Clear question and answer
+                questionDisplay.textContent = "Click 'Ask a Question' to start practicing!";
+                answerDisplay.style.display = 'none';
+                answerDisplay.textContent = "";
+                currentQuestion = null;
+                currentAnswer = null;
+                
+                // Redistribute words
+                distributeWords();
+            }
+            
+            // Function to reset only the path and person
+            function resetPath() {
+                // Clear canvas
+                ctx.clearRect(0, 0, pathCanvas.width, pathCanvas.height);
+                
+                // Reset person position to original location
+                startingPoint.style.bottom = originalPosition.bottom;
+                startingPoint.style.left = originalPosition.left;
+                startingPoint.style.transform = originalPosition.transform;
+                startingPoint.style.top = "auto";
+                startingPoint.querySelector('.person-icon').classList.remove('dragging');
+                
+                // Reset path points
+                pathPoints = [];
+            }
+            
+            // Initialize drag functionality
+            function initDrag() {
+                startingPoint.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    this.querySelector('.person-icon').classList.add('dragging');
+                    
+                    // Record starting point
+                    const rect = this.getBoundingClientRect();
+                    const canvasRect = pathCanvas.getBoundingClientRect();
+                    pathPoints = [{
+                        x: rect.left + rect.width/2 - canvasRect.left,
+                        y: rect.top + rect.height/2 - canvasRect.top
+                    }];
+                    
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    
+                    const rect = startingPoint.getBoundingClientRect();
+                    const mapRect = pathCanvas.getBoundingClientRect();
+                    
+                    // Calculate new position
+                    let newLeft = rect.left + (e.clientX - startX);
+                    let newTop = rect.top + (e.clientY - startY);
+                    
+                    // Constrain within map container
+                    newLeft = Math.max(mapRect.left, Math.min(newLeft, mapRect.right - rect.width));
+                    newTop = Math.max(mapRect.top, Math.min(newTop, mapRect.bottom - rect.height));
+                    
+                    // Update position
+                    startingPoint.style.left = (newLeft - mapRect.left) + 'px';
+                    startingPoint.style.top = (newTop - mapRect.top) + 'px';
+                    startingPoint.style.bottom = 'auto';
+                    startingPoint.style.transform = 'none';
+                    
+                    // Update drag start position
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    
+                    // Record path point
+                    const canvasRect = pathCanvas.getBoundingClientRect();
+                    pathPoints.push({
+                        x: newLeft + rect.width/2 - canvasRect.left,
+                        y: newTop + rect.height/2 - canvasRect.top
+                    });
+                    
+                    // Draw path
+                    drawPath();
+                });
+                
+                document.addEventListener('mouseup', function() {
+                    if (isDragging) {
+                        isDragging = false;
+                        startingPoint.querySelector('.person-icon').classList.remove('dragging');
+                    }
+                });
+            }
+            
+            // Function to draw path
+            function drawPath() {
+                if (pathPoints.length < 2) return;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, pathCanvas.width, pathCanvas.height);
+                
+                // Draw path
+                ctx.beginPath();
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                
+                for (let i = 1; i < pathPoints.length; i++) {
+                    ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+                
+                // Changed path color to bright blue
+                ctx.strokeStyle = '#3a9bff';
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                
+                // Add a glow effect
+                ctx.shadowColor = '#3a9bff';
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+            
+            // Add event listeners
+            questionBtn.addEventListener('click', generateQuestion);
+            answerBtn.addEventListener('click', showAnswer);
+            refreshBtn.addEventListener('click', resetAll);
+            pathResetBtn.addEventListener('click', resetPath);
+            
+            // Initialize
+            resetAll();
+            initDrag();
+        });
+    </script>
+</body>
+</html>
