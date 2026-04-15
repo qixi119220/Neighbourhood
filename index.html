@@ -35,9 +35,9 @@
                 // 核心：在申请媒体流时，显式关闭 WebRTC 内部算法
                 const constraints = {
                     audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
                     }
                 };
 
